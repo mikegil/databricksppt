@@ -1,0 +1,52 @@
+{
+    "version": "2.0.0",
+    "tasks": [{
+            "label": "Build",
+            "type": "shell",
+            "command": "Make dist",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Upload to TestPyPi",
+            "type": "shell",
+            "command": "python3 -m twine upload --repository testpypi dist/*",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "group": "none",
+            "problemMatcher": []
+        },
+        {
+            "label": "Install-LocalDev",
+            "type": "shell",
+            "command": "make devinstall",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            },
+            "group": "test",
+            "problemMatcher": []
+        }
+    ]
+}
