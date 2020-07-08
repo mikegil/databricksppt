@@ -1,32 +1,21 @@
-# Config file for automatic testing at travis-ci.com
-
 language: python
 python:
-    - 3.8
-    - 3.7
-    - 3.6
-
-# Command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+- 3.8
+- 3.7
+- 3.6
 install: pip install -U tox-travis
-
-# Command to run tests, e.g. python setup.py test
 script: tox
-
-# Assuming you have installed the travis-ci CLI tool, after you
-# create the Github repo and add it to Travis, run the
-# following command to finish PyPI deployment setup:
-# $ travis encrypt --add deploy.password
 deploy:
-    provider: pypi
-    edge: true
-    skip_existing: true
-    distributions: sdist bdist_wheel
-    user: __token__
-    server: https://test.pypi.org/legacy/
-    password:
-        secure: GTblUvBfSrMpSaTJPQ9TqTYXUww1BY6UqJ8EgwF4ozvV9oLm6WujFspWfeuBFd+Ick4X8Bs2nheJXagZ77Ycr4Kpc8MKXMihewNrLTOj/SFdNAp4MVcodT6Ykn3f5jiKIJiY/5Ol0+iWC9gxVtWGYTzRc7H3Yz4NKOMJmUzZ+4ErzD1B2uuBxk8GcNc7iBkALWiDXUVTiVzH9ZN4s0onBoYhdPD5aifT6GA1ioNawdEHQ53RBjlcx9L3iq4nqPzghgIbw9ebh3KqMYCj/4k9OZy2SgpFzXBNM3LtKwHJWw1ntn3EKE8YER/PI9O9a/cberWZErY3TrFYil92BJW4y1CKgbTrMy3R78aD0onurmEwD5I1LmBd3CvENxKgdiNe63Qh22p9lpKoZVwoOgng5B6fi9vmdhmI8qqe7NaRCpBqmnwaoQsWv8UclWpcw6jGCF0WmeIjesceo1I6wLs6xzcDBU6qOeAmdluU23edH25guTNSM6Yy6udHpNj+9Y0uzM/8TlTIA086gjUcFmcJ4QFiDB8NM2gpagaWc+VJ/J/JMCQEa8P8qyhqIyPMFWgPTvopXyHzUS/juRfyg0PkOGklYIZ4Ew0dCpUY5C2NoG8HkoJtgasnbgg3ReKc1mBzQe8ZvCtHltKeYYAp/2YyvYxOlg0dRBxXzcoAliwlLnA=
-    on:
-        repo: mikegil/databricksppt
-        python: 3.8
-        tags: true
-        all_branches: true
+  provider: pypi
+  edge: true
+  skip_existing: true
+  distributions: sdist bdist_wheel
+  user: __token__
+  server: https://test.pypi.org/legacy/
+  password:
+    secure: LhjXTS1XZ7KoJXj3pqTBUi4goig44UawWoPs7mkZ5m9SgbBCVkJwoqzgFD2ghW1Jq31sH3bLSRgNnDrmqucwVO0G3vgotR6Q2J3kZEAztrhssdtKIkLg0xBURb+kT1znE9OkDbRrvVlzkBu1BQSc1pH3hDpK3l0fUZrBL8R2pg8LUxfRHVTlRM7Xu3KmSjpcBhx+z06VKCsgmXW77cn/2+rJrAJWfOv6N6ZWBnW5DbykXSI3jZJMUgRJZdu1GidC2z93id4AH4FHeJ+dGmgMNXAuypshJYPv6eVkopNd7tZK8FpEDSkPrUF4mUzMZ8QM6ep0hho6Njs5lrnwA4A0RtkrkPIr/LVETM6D+kLnGOV2F4ikxES6rw4HWA/wLWf8uFRELTXvr8PMlVD+fxjxQ2uvV8pNUgM+mxpVAr4eTbtX6cGl8YMMtbSco8pQhe0C5VF4HrJMTdI6bBKEjdlb5sYRyrywo8+TIoZ5RezgegkYeCXIkOQ/DYcMe1MnKkPaK4nC+5xV+Ag9MrYndAGR4R9YXSNsqEM3+qgjcHHxLwETyltwZJ5UIdh9SgNXdaA0+1PVTWNifnQAamnFQ9N2PLc7TnNkssFP/dwV9Zb7n6jS+x0SOs5+K2S5naVu6VdhCqMD1Yyo1qXiaEtSoAYR0JufmhmHHBtpJuBlWRwoXMM=
+  on:
+    repo: mikegil/databricksppt
+    python: 3.8
+    tags: true
+    all_branches: true
