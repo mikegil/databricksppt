@@ -49,6 +49,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/mikegil/databricksppt',
-    version='0.1.0-dev6',
+    version='0.1.0-dev7',
     zip_safe=False,
 )
