@@ -19,6 +19,7 @@ script: tox
 deploy:
     provider: pypi
     edge: true
+    skip_existing: true
     distributions: sdist bdist_wheel
     user: __token__
     server: https://test.pypi.org/legacy/
