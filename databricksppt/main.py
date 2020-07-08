@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!python
 
 import sys
 import os
@@ -32,6 +32,6 @@ def main():
     # do the real work:
     print("Producing databricksppt from: %s and storing it in %s" %
           (infilename, outfilename))
-    print(databricksppt.todatabricksppt(""))  # infilename, outfilename)
+    print(databricksppt.toPPT(""))  # infilename, outfilename)
 
     print("done")

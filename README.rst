@@ -16,7 +16,7 @@ databricksppt
 
 
 
-Python package to allow creation of Think-Cell PPT charts from Databricks
+Python package to allow creation of PPT charts (and potentially Think-Cell ones) directly from Databricks
 
 
 * Free software: MIT license

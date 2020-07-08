@@ -1,1 +1,1 @@
-"""Unit test package for tcppt."""
+"""Unit test package for databricksppt."""
