@@ -6,7 +6,7 @@ from pptx.enum.shapes import PP_PLACEHOLDER
 import pandas as pd
 
 
-def toPPT(df, template=None, layout=1, title=None, subtitle="", slideNum=0):
+def toPPT(df, template=None, layout=1, title=None, subtitle="", slideNum=0, chart_type='Table'):
     if (not isinstance(df, pd.DataFrame)):
         return None
 
@@ -38,35 +38,45 @@ def toPPT(df, template=None, layout=1, title=None, subtitle="", slideNum=0):
     for shape in slide.placeholders:
         placeholderIdx.append(shape.placeholder_format.idx)
 
-    shape = slide.placeholders[placeholderIdx[0]]
-    phf = shape.placeholder_format
+    placeholder = slide.placeholders[placeholderIdx[0]]
+    phf = placeholder.placeholder_format
     if phf.type == PP_PLACEHOLDER.TITLE:
         if len(slide.placeholders) < 2:
             return
         else:
-            __set_titles(shape, title, subtitle)
-            shape = slide.placeholders[placeholderIdx[1]]
+            __set_titles(placeholder, title, subtitle)
+            placeholder = slide.placeholders[placeholderIdx[1]]
 
-    print('%d, %s' % (phf.idx, phf.type))
-    print('%d, %d, %d, %d' % (shape.left, shape.top, shape.width, shape.height))
-
-    x, y, cx, cy = Inches(2), Inches(2), Inches(4), Inches(1.5)
-    colNames = df.columns.tolist()
-
-    # table = placeholder.insert_table(cols=df.shape[0], rows=df.shape[1])
-
-    # col = 0
-    # for colName in colNames:
-    #     table.cell(0, col).text = colName
-    #     col += 1
-
-    # for index, rows in df.iterrows():
-    #     col = 0
-    #     for colName in colNames:
-    #         table.cell(index+1, col).text = colName
-    #         col += 1
+    if chart_type == 'Table':
+        __insert_table(slide, placeholder, df)
 
     return pres
+
+
+def __insert_table(slide, placeholder, df):
+    colNames = df.columns.tolist()
+
+    # Create new element with same shape and position as placeholder
+    table = slide.shapes.add_table(
+        df.shape[0]+1, df.shape[1], placeholder.left, placeholder.top, placeholder.width, placeholder.height).table
+
+    # Remove empty placeholder
+    sp = placeholder._sp
+    sp.getparent().remove(sp)
+
+    # Populate table
+    col = 0
+    for colName in colNames:
+        table.cell(0, col).text = colName
+        col += 1
+
+    for index, rows in df.iterrows():
+        col = 0
+        for colName in colNames:
+            table.cell(index+1, col).text = str(rows[col])
+            col += 1
+
+    return
 
 
 def __set_titles(titleph, title, subtitle):

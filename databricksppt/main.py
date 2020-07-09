@@ -18,8 +18,9 @@ from pptx import Presentation
 @click.option('--title', type=str, help='Title for slide on which to place data')
 @click.option('--subtitle', type=str, help='Subtitle for slide on which to place data')
 @click.option('--slide', type=int, default=0, help='Slide # on which to place data; 0 = new slide (default)')
+@click.option('--chart-type', type=click.Choice(['Table', 'Bar'], case_sensitive=False), default='Table', help='Type of chart to display')
 @click.option('--open', is_flag=True)
-def main(inputfile, outputfile, template, layout, title, subtitle, slide, open):
+def main(inputfile, outputfile, template, layout, title, subtitle, slide, chart_type, open):
     """
     startup function for running databricksppt as a script
     """
@@ -28,7 +29,7 @@ def main(inputfile, outputfile, template, layout, title, subtitle, slide, open):
 
     df = pd.read_csv(inputfile)
     pres = databricksppt.toPPT(
-        df, template=template, layout=layout, title=title, subtitle=subtitle, slideNum=slide)
+        df, template=template, layout=layout, title=title, subtitle=subtitle, slideNum=slide, chart_type=chart_type)
     if (pres is not None):
         pres.save(outputfile)
         if open:
