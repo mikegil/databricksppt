@@ -1,21 +1,22 @@
 language: python
+cache: pip
 python:
-- 3.8
-- 3.7
-- 3.6
+    - 3.8
+    - 3.7
+    - 3.6
 install: pip install -U tox-travis
 script: tox
 deploy:
-  provider: pypi
-  edge: true
-  skip_existing: true
-  distributions: sdist bdist_wheel
-  user: __token__
-  server: https://test.pypi.org/legacy/
-  password:
-    secure: LhjXTS1XZ7KoJXj3pqTBUi4goig44UawWoPs7mkZ5m9SgbBCVkJwoqzgFD2ghW1Jq31sH3bLSRgNnDrmqucwVO0G3vgotR6Q2J3kZEAztrhssdtKIkLg0xBURb+kT1znE9OkDbRrvVlzkBu1BQSc1pH3hDpK3l0fUZrBL8R2pg8LUxfRHVTlRM7Xu3KmSjpcBhx+z06VKCsgmXW77cn/2+rJrAJWfOv6N6ZWBnW5DbykXSI3jZJMUgRJZdu1GidC2z93id4AH4FHeJ+dGmgMNXAuypshJYPv6eVkopNd7tZK8FpEDSkPrUF4mUzMZ8QM6ep0hho6Njs5lrnwA4A0RtkrkPIr/LVETM6D+kLnGOV2F4ikxES6rw4HWA/wLWf8uFRELTXvr8PMlVD+fxjxQ2uvV8pNUgM+mxpVAr4eTbtX6cGl8YMMtbSco8pQhe0C5VF4HrJMTdI6bBKEjdlb5sYRyrywo8+TIoZ5RezgegkYeCXIkOQ/DYcMe1MnKkPaK4nC+5xV+Ag9MrYndAGR4R9YXSNsqEM3+qgjcHHxLwETyltwZJ5UIdh9SgNXdaA0+1PVTWNifnQAamnFQ9N2PLc7TnNkssFP/dwV9Zb7n6jS+x0SOs5+K2S5naVu6VdhCqMD1Yyo1qXiaEtSoAYR0JufmhmHHBtpJuBlWRwoXMM=
-  on:
-    repo: mikegil/databricksppt
-    python: 3.8
-    tags: true
-    all_branches: true
+    provider: pypi
+    edge: true
+    skip_existing: true
+    distributions: sdist bdist_wheel
+    user: __token__
+    server: https://test.pypi.org/legacy/
+    password:
+        secure: LhjXTS1XZ7KoJXj3pqTBUi4goig44UawWoPs7mkZ5m9SgbBCVkJwoqzgFD2ghW1Jq31sH3bLSRgNnDrmqucwVO0G3vgotR6Q2J3kZEAztrhssdtKIkLg0xBURb+kT1znE9OkDbRrvVlzkBu1BQSc1pH3hDpK3l0fUZrBL8R2pg8LUxfRHVTlRM7Xu3KmSjpcBhx+z06VKCsgmXW77cn/2+rJrAJWfOv6N6ZWBnW5DbykXSI3jZJMUgRJZdu1GidC2z93id4AH4FHeJ+dGmgMNXAuypshJYPv6eVkopNd7tZK8FpEDSkPrUF4mUzMZ8QM6ep0hho6Njs5lrnwA4A0RtkrkPIr/LVETM6D+kLnGOV2F4ikxES6rw4HWA/wLWf8uFRELTXvr8PMlVD+fxjxQ2uvV8pNUgM+mxpVAr4eTbtX6cGl8YMMtbSco8pQhe0C5VF4HrJMTdI6bBKEjdlb5sYRyrywo8+TIoZ5RezgegkYeCXIkOQ/DYcMe1MnKkPaK4nC+5xV+Ag9MrYndAGR4R9YXSNsqEM3+qgjcHHxLwETyltwZJ5UIdh9SgNXdaA0+1PVTWNifnQAamnFQ9N2PLc7TnNkssFP/dwV9Zb7n6jS+x0SOs5+K2S5naVu6VdhCqMD1Yyo1qXiaEtSoAYR0JufmhmHHBtpJuBlWRwoXMM=
+    on:
+        repo: mikegil/databricksppt
+        python: 3.8
+        tags: true
+        all_branches: true
