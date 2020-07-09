@@ -18,11 +18,12 @@ from pptx import Presentation
 @click.option('--title', type=str, help='Title for slide on which to place data')
 @click.option('--subtitle', type=str, help='Subtitle for slide on which to place data')
 @click.option('--slide', type=int, default=0, help='Slide # on which to place data; 0 = new slide (default)')
-@click.option('--chart-type', type=click.Choice(['Table', 'Bar'], case_sensitive=False), default='Table', help='Type of chart to display')
-@click.option('--open', is_flag=True)
+@click.option('--chart-type', type=click.Choice(['Table', 'Bar'], case_sensitive=False), default='Table', help='Type of chart to display (default = Table)')
+@click.option('--open', is_flag=True, help='Attempt to automatically open the PPTX file on success')
 def main(inputfile, outputfile, template, layout, title, subtitle, slide, chart_type, open):
     """
-    startup function for running databricksppt as a script
+    Runs databricksppt from the command line, using CSV input to produce a Powerpoint
+    file including a Chart or Table built from this data
     """
     if (Path(outputfile).suffix != '.pptx'):
         outputfile += '.pptx'
