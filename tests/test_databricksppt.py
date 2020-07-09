@@ -20,7 +20,8 @@ class Testdatabricksppt(unittest.TestCase):
         """Tear down test fixtures, if any."""
 
     def test_000_something(self):
-        print(databricksppt.toPPT(""))
+        pass
+        # print(databricksppt.toPPT(""))
 
     def test_command_line_interface(self):
         """Test the CLI."""
