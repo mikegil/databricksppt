@@ -109,5 +109,5 @@ ENV/
 .DS_Store
 
 # Test files
-test.csv
-test.pptx
+test*.csv
+test*.pptx
