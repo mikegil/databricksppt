@@ -107,3 +107,7 @@ ENV/
 
 # Mac stuff
 .DS_Store
+
+# Test files
+test.csv
+test.pptx
