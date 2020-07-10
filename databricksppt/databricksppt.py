@@ -44,50 +44,52 @@ class CHART_TYPE(Enum):
     TABLE = 'Table'
 
 
-def chart_types():
-    values = []
-    for chart_type in CHART_TYPE:
-        values.append(chart_type.value)
-    return values
+def toPPT(slideInfo, chartInfo):
+    pres = __create_presentation(slideInfo)
+
+    slide = __create_slide(pres, slideInfo)
+
+    placeholder = __get_placeholder(slide, slideInfo)
+
+    __insert_object(slide, placeholder, chartInfo)
+
+    return pres
 
 
-def toPPT(dfs, template=None, layout=1, title=None, subtitle="", slideNum=0, chart_type='Table', transpose=False):
-    if (not isinstance(dfs, pd.DataFrame) and not __iterable(dfs)):
-        return None
-
-    if (isinstance(dfs, pd.DataFrame)):
-        dfs = [dfs]
-    else:
-        for dataframe in dfs:
-            if not isinstance(dataframe, pd.DataFrame):
-                return None
-
-    if transpose:
-        dfs = __transpose_dfs(dfs)
-
-    df = dfs[0]
-
+def __create_presentation(slideInfo):
+    template = slideInfo.get('template')
     if (template is not None):
         if (not isinstance(template, str)):
             template = None
         else:
-            if (not template == "" and not path.isfile(template)):
+            if (not path.isfile(template)):
                 template = None
 
-    pres = Presentation(template)
-    slide = None
+    return Presentation(template)
+
+
+def __create_slide(pres, slideInfo):
+    slideNum = slideInfo.get('slideNum', 0)
+    layout = slideInfo.get('layout', 1)
+    title = slideInfo.get('title')
 
     if slideNum == 0:
-        slide = pres.slides.add_slide(pres.slide_layouts[1])
+        slide = pres.slides.add_slide(pres.slide_layouts[layout])
     else:
         if len(pres.slides) >= slideNum:
             slide = pres.slides[slideNum-1]
         else:
             return None
 
-    #placeholder = slide.shapes[1]
+    slide.shapes.title.text = title
 
-    if len(slide.placeholders) == 0:
+    return slide
+
+
+def __get_placeholder(slide, slideInfo):
+    placeholderNum = slideInfo.get('placeholderNum', 1)
+
+    if len(slide.placeholders) <= placeholderNum:
         return None
 
     placeholderIdx = []
@@ -95,131 +97,226 @@ def toPPT(dfs, template=None, layout=1, title=None, subtitle="", slideNum=0, cha
     for shape in slide.placeholders:
         placeholderIdx.append(shape.placeholder_format.idx)
 
-    placeholder = slide.placeholders[placeholderIdx[0]]
-    phf = placeholder.placeholder_format
-    if phf.type == PP_PLACEHOLDER.TITLE:
-        if len(slide.placeholders) < 2:
-            return
-        else:
-            __set_titles(placeholder, title, subtitle)
-            placeholder = slide.placeholders[placeholderIdx[1]]
+    placeholder = slide.placeholders[placeholderIdx[placeholderNum]]
 
-    if chart_type == CHART_TYPE.AREA.value:
-        __insert_chart(XL_CHART_TYPE.AREA, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.AREA_STACKED.value:
-        __insert_chart(XL_CHART_TYPE.AREA_STACKED, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.AREA_STACKED_100.value:
-        __insert_chart(XL_CHART_TYPE.AREA_STACKED_100, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.BAR.value:
-        __insert_chart(XL_CHART_TYPE.BAR_CLUSTERED, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.BAR_STACKED.value:
-        __insert_chart(XL_CHART_TYPE.BAR_STACKED, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.BAR_STACKED_100.value:
-        __insert_chart(XL_CHART_TYPE.BAR_STACKED_100, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.COLUMN.value:
-        __insert_chart(XL_CHART_TYPE.COLUMN_CLUSTERED, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.COLUMN_STACKED.value:
-        __insert_chart(XL_CHART_TYPE.COLUMN_STACKED, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.COLUMN_STACKED_100.value:
-        __insert_chart(XL_CHART_TYPE.COLUMN_STACKED_100,
-                       slide, placeholder, df)
-    elif chart_type == CHART_TYPE.LINE.value:
-        __insert_chart(XL_CHART_TYPE.LINE, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.LINE_STACKED.value:
-        __insert_chart(XL_CHART_TYPE.LINE_STACKED, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.LINE_STACKED_100.value:
-        __insert_chart(XL_CHART_TYPE.LINE_STACKED_100, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.LINE_MARKED.value:
-        __insert_chart(XL_CHART_TYPE.LINE_MARKERS, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.LINE_MARKED_STACKED.value:
-        __insert_chart(XL_CHART_TYPE.LINE_MARKERS_STACKED,
-                       slide, placeholder, df)
-    elif chart_type == CHART_TYPE.LINE_MARKED_STACKED_100.value:
-        __insert_chart(XL_CHART_TYPE.LINE_MARKERS_STACKED_100,
-                       slide, placeholder, df)
-    elif chart_type == CHART_TYPE.DOUGHNUT.value:
-        __insert_chart(XL_CHART_TYPE.DOUGHNUT, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.DOUGHNUT_EXPLODED.value:
-        __insert_chart(XL_CHART_TYPE.DOUGHNUT_EXPLODED, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.PIE.value:
-        __insert_chart(XL_CHART_TYPE.PIE, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.PIE_EXPLODED.value:
-        __insert_chart(XL_CHART_TYPE.PIE_EXPLODED, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.RADAR.value:
-        __insert_chart(XL_CHART_TYPE.RADAR, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.RADAR_FILLED.value:
-        __insert_chart(XL_CHART_TYPE.RADAR_FILLED, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.RADAR_MARKED.value:
-        __insert_chart(XL_CHART_TYPE.RADAR_MARKERS, slide, placeholder, df)
-    elif chart_type == CHART_TYPE.XY_SCATTER.value:
-        __insert_xyzchart(XL_CHART_TYPE.XY_SCATTER, slide, placeholder, dfs)
-    elif chart_type == CHART_TYPE.XY_SCATTER_LINES.value:
-        __insert_xyzchart(XL_CHART_TYPE.XY_SCATTER_LINES_NO_MARKERS,
-                          slide, placeholder, dfs)
-    elif chart_type == CHART_TYPE.XY_SCATTER_LINES_SMOOTHED.value:
-        __insert_xyzchart(XL_CHART_TYPE.XY_SCATTER_SMOOTH_NO_MARKERS,
-                          slide, placeholder, dfs)
-    elif chart_type == CHART_TYPE.XY_SCATTER_LINES_MARKED.value:
-        __insert_chart(XL_CHART_TYPE.XY_SCATTER_LINES, slide, placeholder, dfs)
-    elif chart_type == CHART_TYPE.XY_SCATTER_LINES_MARKED_SMOOTHED.value:
-        __insert_xyzchart(XL_CHART_TYPE.XY_SCATTER_SMOOTH,
-                          slide, placeholder, dfs)
-    elif chart_type == CHART_TYPE.BUBBLE.value:
-        __insert_xyzchart(XL_CHART_TYPE.BUBBLE, slide, placeholder, dfs)
-    else:
-        __insert_table(slide, placeholder, df)
+    # Remove empty placeholder
+    sp = placeholder._sp
+    sp.getparent().remove(sp)
 
-    BUBBLE = 'Bubble'
-
-    return pres
+    return placeholder
 
 
-def __transpose_dfs(dfs):
-    tdfs = []
-    for dataframe in dfs:
-        labelsInFirstCol = True
+def __infer_category_labels(data):
+    labelsInFirstCol = False
+
+    for dataframe in data:
         firstCol = dataframe.iloc[:, 0]
         for cell in firstCol:
-            if isinstance(cell, numbers.Number):
-                labelsInFirstCol = False
+            if not isinstance(cell, numbers.Number):
+                labelsInFirstCol = True
 
-        labelsInColumnHeaders = True
+    return labelsInFirstCol
+
+
+def __infer_series_labels(data):
+    labelsInColumnHeaders = False
+
+    for dataframe in data:
         for col in dataframe.columns:
-            if isinstance(col, numbers.Number):
-                labelsInColumnHeaders = False
+            if not isinstance(col, numbers.Number):
+                labelsInColumnHeaders = True
 
-        if labelsInFirstCol and labelsInColumnHeaders:
-            df1 = dataframe.set_index(
+    return labelsInColumnHeaders
+
+
+def __transpose_data(chartInfo):
+    transposed_data = []
+
+    for dataframe in chartInfo['data']:
+        if not isinstance(dataframe, pd.DataFrame):
+            return chartInfo
+
+        if chartInfo['first_column_as_labels'] and chartInfo['column_names_as_labels']:
+            indexColName = dataframe.columns[0]
+            df = dataframe.set_index(
                 dataframe.columns[0]).transpose().reset_index()
-        elif labelsInColumnHeaders:
-            df1 = dataframe.transpose().reset_index()
+            df.rename(columns={'index': indexColName}, inplace=True)
+        elif chartInfo['column_names_as_labels']:
+            df = dataframe.transpose().reset_index()
+        elif chartInfo['first_column_as_labels']:
+            df = dataframe.set_index(dataframe.columns[0]).transpose()
         else:
-            df1 = dataframe.set_index(dataframe.columns[0]).transpose()
+            df = dataframe.transpose()
 
-        tdfs.append(df1)
-#            tdfs.append(dataframe.set_index(dataframe.columns[0]).transpose())
+        transposed_data.append(df)
 
-    return tdfs
+    chartInfo['data'] = transposed_data
+
+    temp = chartInfo['column_names_as_labels']
+    chartInfo['column_names_as_labels'] = chartInfo['first_column_as_labels']
+    chartInfo['first_column_as_labels'] = temp
+
+    return chartInfo
 
 
-def __insert_table(slide, placeholder, df):
-    colNames = df.columns.tolist()
+def __get_dataframes(data):
+    if (not isinstance(data, pd.DataFrame) and not __iterable(data)):
+        return None
+
+    if (isinstance(data, pd.DataFrame)):
+        dfs = [data]
+    else:
+        for dataframe in data:
+            if not isinstance(dataframe, pd.DataFrame):
+                return None
+        dfs = data
+
+    return dfs
+
+
+def __insert_object(slide, placeholder, chartInfo):
+
+    data = chartInfo.get('data')
+
+    if (data is None):
+        return
+
+    if (isinstance(data, pd.DataFrame)):
+        chartInfo['data'] = [data]
+
+    for dataframe in chartInfo['data']:
+        if not isinstance(dataframe, pd.DataFrame):
+            return
+
+    if not isinstance(chartInfo.get('column_names_as_labels'), bool):
+        chartInfo['column_names_as_labels'] = __infer_series_labels(
+            chartInfo['data'])
+
+    if not isinstance(chartInfo.get('first_column_as_labels'), bool):
+        chartInfo['first_column_as_labels'] = __infer_category_labels(
+            chartInfo['data'])
+
+    transpose = chartInfo.get('transpose', False)
+    if transpose:
+        chartInfo = __transpose_data(chartInfo)
+
+    data = __get_dataframes(chartInfo.get('data'))
+    dataframe = data[0]
+
+    chart_type = chartInfo.get('chart_type', 'Table')
+
+    if chart_type == CHART_TYPE.AREA.value:
+        __insert_chart(XL_CHART_TYPE.AREA, slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.AREA_STACKED.value:
+        __insert_chart(XL_CHART_TYPE.AREA_STACKED,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.AREA_STACKED_100.value:
+        __insert_chart(XL_CHART_TYPE.AREA_STACKED_100,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.BAR.value:
+        __insert_chart(XL_CHART_TYPE.BAR_CLUSTERED,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.BAR_STACKED.value:
+        __insert_chart(XL_CHART_TYPE.BAR_STACKED,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.BAR_STACKED_100.value:
+        __insert_chart(XL_CHART_TYPE.BAR_STACKED_100,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.COLUMN.value:
+        __insert_chart(XL_CHART_TYPE.COLUMN_CLUSTERED,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.COLUMN_STACKED.value:
+        __insert_chart(XL_CHART_TYPE.COLUMN_STACKED,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.COLUMN_STACKED_100.value:
+        __insert_chart(XL_CHART_TYPE.COLUMN_STACKED_100,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.LINE.value:
+        __insert_chart(XL_CHART_TYPE.LINE, slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.LINE_STACKED.value:
+        __insert_chart(XL_CHART_TYPE.LINE_STACKED,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.LINE_STACKED_100.value:
+        __insert_chart(XL_CHART_TYPE.LINE_STACKED_100,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.LINE_MARKED.value:
+        __insert_chart(XL_CHART_TYPE.LINE_MARKERS,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.LINE_MARKED_STACKED.value:
+        __insert_chart(XL_CHART_TYPE.LINE_MARKERS_STACKED,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.LINE_MARKED_STACKED_100.value:
+        __insert_chart(XL_CHART_TYPE.LINE_MARKERS_STACKED_100,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.DOUGHNUT.value:
+        __insert_chart(XL_CHART_TYPE.DOUGHNUT, slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.DOUGHNUT_EXPLODED.value:
+        __insert_chart(XL_CHART_TYPE.DOUGHNUT_EXPLODED,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.PIE.value:
+        __insert_chart(XL_CHART_TYPE.PIE, slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.PIE_EXPLODED.value:
+        __insert_chart(XL_CHART_TYPE.PIE_EXPLODED,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.RADAR.value:
+        __insert_chart(XL_CHART_TYPE.RADAR, slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.RADAR_FILLED.value:
+        __insert_chart(XL_CHART_TYPE.RADAR_FILLED,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.RADAR_MARKED.value:
+        __insert_chart(XL_CHART_TYPE.RADAR_MARKERS,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.XY_SCATTER.value:
+        __insert_xyzchart(XL_CHART_TYPE.XY_SCATTER,
+                          slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.XY_SCATTER_LINES.value:
+        __insert_xyzchart(XL_CHART_TYPE.XY_SCATTER_LINES_NO_MARKERS,
+                          slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.XY_SCATTER_LINES_SMOOTHED.value:
+        __insert_xyzchart(XL_CHART_TYPE.XY_SCATTER_SMOOTH_NO_MARKERS,
+                          slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.XY_SCATTER_LINES_MARKED.value:
+        __insert_chart(XL_CHART_TYPE.XY_SCATTER_LINES,
+                       slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.XY_SCATTER_LINES_MARKED_SMOOTHED.value:
+        __insert_xyzchart(XL_CHART_TYPE.XY_SCATTER_SMOOTH,
+                          slide, placeholder, chartInfo)
+    elif chart_type == CHART_TYPE.BUBBLE.value:
+        __insert_xyzchart(XL_CHART_TYPE.BUBBLE, slide, placeholder, chartInfo)
+    else:
+        __insert_table(slide, placeholder, chartInfo)
+
+
+def __insert_table(slide, placeholder, chartInfo):
+    df = chartInfo['data'][0]
+
+    columns = df.shape[1]
+    rows = df.shape[0]
+    if chartInfo['column_names_as_labels']:
+        rows += 1
 
     # Create new element with same shape and position as placeholder
     table = slide.shapes.add_table(
-        df.shape[0]+1, df.shape[1], placeholder.left, placeholder.top, placeholder.width, placeholder.height).table
+        rows, columns, placeholder.left, placeholder.top, placeholder.width, placeholder.height).table
+    table.first_row = chartInfo['column_names_as_labels']
+    table.first_col = chartInfo['first_column_as_labels']
 
     # Remove empty placeholder
     sp = placeholder._sp
     sp.getparent().remove(sp)
 
     # Populate table
-    col = 0
-    for colName in colNames:
-        table.cell(0, col).text = str(colName)
-        col += 1
+    colNames = df.columns.tolist()
 
-    rowNum = 1
+    rowNum = 0
+
+    if chartInfo['column_names_as_labels']:
+        col = 0
+        for colName in colNames:
+            table.cell(0, col).text = str(colName)
+            col += 1
+        rowNum += 1
+
     for index, row in df.iterrows():
         col = 0
         for colName in colNames:
@@ -236,6 +333,8 @@ def __iterable(obj):
 
 def __create_chartdata(df):
     chart_data = CategoryChartData()
+
+    # TODO: Deal with First Row as Labels and Column Names as Labels
 
     colNames = df.columns.tolist()
 
@@ -287,8 +386,22 @@ def __create_xyzdata(dfs):
     return chart_data
 
 
-def __insert_chart(chart_type, slide, placeholder, df):
-    chart_data = __create_chartdata(df)
+def __insert_chart(chart_type, slide, placeholder, chartInfo):
+    chart_data = __create_chartdata(chartInfo['data'][0])
+    if chart_data is None:
+        return
+
+    # Create new element with same shape and position as placeholder
+    chart = slide.shapes.add_chart(chart_type, placeholder.left,
+                                   placeholder.top, placeholder.width, placeholder.height, chart_data).chart
+
+    return
+
+
+def __insert_xyzchart(chart_type, slide, placeholder, chartInfo):
+    chart_data = __create_xyzdata(chartInfo['data'])
+    if chart_data is None:
+        return
 
     # Create new element with same shape and position as placeholder
     chart = slide.shapes.add_chart(chart_type, placeholder.left,
@@ -299,34 +412,6 @@ def __insert_chart(chart_type, slide, placeholder, df):
     sp.getparent().remove(sp)
 
     return
-
-
-def __insert_xyzchart(chart_type, slide, placeholder, dfs):
-    chart_data = __create_xyzdata(dfs)
-
-    # Create new element with same shape and position as placeholder
-    chart = slide.shapes.add_chart(chart_type, placeholder.left,
-                                   placeholder.top, placeholder.width, placeholder.height, chart_data).chart
-
-    # Remove empty placeholder
-    sp = placeholder._sp
-    sp.getparent().remove(sp)
-
-    return
-
-
-def __set_titles(titleph, title, subtitle):
-    if not titleph.has_text_frame:
-        return
-    if title is None or not isinstance(title, str):
-        return
-
-    text_frame = titleph.text_frame
-    p = text_frame.paragraphs[0]
-    p.text = title
-    if (len(text_frame.paragraphs) > 1 and subtitle is not None and isinstance(subtitle, str)):
-        p = text_frame.paragraphs[1]
-        p.text = subtitle
 
 
 def __get_datafile_name(filename):
