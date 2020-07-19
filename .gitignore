@@ -111,4 +111,6 @@ ENV/
 # Test files
 test*.csv
 test*.pptx
+test*.ppttc
+AP*.pptx
 ~*

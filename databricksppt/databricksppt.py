@@ -46,11 +46,22 @@ class CHART_TYPE(Enum):
 
 def toPPT(slideInfo, chartInfo):
     pres = __create_presentation(slideInfo)
+    if pres is None:
+        return None
 
     slide = __create_slide(pres, slideInfo)
+    if slide is None:
+        return None
 
-    placeholder = __get_placeholder(slide, slideInfo)
+    placeholderNum = slideInfo.get('placeholder')
+    if placeholderNum is not None:
+        placeholder = __get_placeholder(slide, placeholderNum)
+    else:
+        chartNum = slideInfo.get('chart', 1)
+        placeholder = __get_chart(slide, chartNum)
 
+    if placeholder is None:
+        return None
     __insert_object(slide, placeholder, chartInfo)
 
     return pres
@@ -81,14 +92,13 @@ def __create_slide(pres, slideInfo):
         else:
             return None
 
-    slide.shapes.title.text = title
+    if slide.shapes.title is not None:
+        slide.shapes.title.text = title
 
     return slide
 
 
-def __get_placeholder(slide, slideInfo):
-    placeholderNum = slideInfo.get('placeholderNum', 1)
-
+def __get_placeholder(slide, placeholderNum):
     if len(slide.placeholders) <= placeholderNum:
         return None
 
@@ -104,6 +114,22 @@ def __get_placeholder(slide, slideInfo):
     sp.getparent().remove(sp)
 
     return placeholder
+
+
+def __get_chart(slide, chartNum):
+    if chartNum == 0:
+        return None
+
+    chartFound = 0
+
+    for shape in slide.shapes:
+        if shape.has_chart:
+            chartFound += 1
+        if chartFound == chartNum:
+            shape.element.getparent().remove(shape.element)
+            return shape
+
+    return None
 
 
 def __infer_category_labels(data):
@@ -331,24 +357,36 @@ def __iterable(obj):
     return isinstance(obj, Iterable)
 
 
-def __create_chartdata(df):
+def __create_chartdata(chartInfo):
     chart_data = CategoryChartData()
 
     # TODO: Deal with First Row as Labels and Column Names as Labels
 
-    colNames = df.columns.tolist()
+    colNames = chartInfo['data'][0].columns.tolist()
+    offset = 0
 
-    if len(colNames) >= 2:
+    if (chartInfo['first_column_as_labels']):
+        offset = 1
 
-        for colName in colNames[1:]:
-            chart_data.categories.add_category(colName)
+    if len(colNames) > offset:
 
-        for index, row in df.iterrows():
+        colNum = 1
+        for colName in colNames[offset:]:
+            if (chartInfo['column_names_as_labels']):
+                chart_data.categories.add_category(colName)
+            else:
+                chart_data.categories.add_category('Category '+str(colNum))
+
+        rowNum = 1
+        for index, row in chartInfo['data'][0].iterrows():
             data = []
-            for colName in colNames[1:]:
+            for colName in colNames[offset:]:
                 data.append(row[colName])
 
-            chart_data.add_series(str(row[0]), data)
+            if chartInfo['first_column_as_labels']:
+                chart_data.add_series(str(row[0]), data)
+            else:
+                chart_data.add_series('Series ' + str(rowNum), data)
 
     return chart_data
 
@@ -387,7 +425,7 @@ def __create_xyzdata(dfs):
 
 
 def __insert_chart(chart_type, slide, placeholder, chartInfo):
-    chart_data = __create_chartdata(chartInfo['data'][0])
+    chart_data = __create_chartdata(chartInfo)
     if chart_data is None:
         return
 
@@ -395,7 +433,18 @@ def __insert_chart(chart_type, slide, placeholder, chartInfo):
     chart = slide.shapes.add_chart(chart_type, placeholder.left,
                                    placeholder.top, placeholder.width, placeholder.height, chart_data).chart
 
+    __set_chart_title(chart, chartInfo)
+
     return
+
+
+def __set_chart_title(chart, chartInfo):
+    title = chartInfo.get('title')
+    if title is not None:
+        title_tf = chart.chart_title.text_frame
+        title_tf.clear()
+        title_p = title_tf.paragraphs[0]
+        title_p.add_run().text = title
 
 
 def __insert_xyzchart(chart_type, slide, placeholder, chartInfo):
@@ -407,9 +456,11 @@ def __insert_xyzchart(chart_type, slide, placeholder, chartInfo):
     chart = slide.shapes.add_chart(chart_type, placeholder.left,
                                    placeholder.top, placeholder.width, placeholder.height, chart_data).chart
 
+    __set_chart_title(chart, chartInfo)
+
     # Remove empty placeholder
-    sp = placeholder._sp
-    sp.getparent().remove(sp)
+    # sp = placeholder._sp
+    # sp.getparent().remove(sp)
 
     return
 
