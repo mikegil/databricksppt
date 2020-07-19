@@ -54,7 +54,7 @@ def toPPT(slideInfo, chartInfo):
         return None
 
     placeholderNum = slideInfo.get('placeholder')
-    if placeholderNum is not None:
+    if placeholderNum is not None and placeholderNum > 0:
         placeholder = __get_placeholder(slide, placeholderNum)
     else:
         chartNum = slideInfo.get('chart', 1)
@@ -84,7 +84,7 @@ def __create_slide(pres, slideInfo):
     layout = slideInfo.get('layout', 1)
     title = slideInfo.get('title')
 
-    if slideNum == 0:
+    if slideNum == 0 or slideInfo.get('template') is None:
         slide = pres.slides.add_slide(pres.slide_layouts[layout])
     else:
         if len(pres.slides) >= slideNum:
@@ -99,7 +99,7 @@ def __create_slide(pres, slideInfo):
 
 
 def __get_placeholder(slide, placeholderNum):
-    if len(slide.placeholders) <= placeholderNum:
+    if len(slide.placeholders) < placeholderNum or placeholderNum <= 0:
         return None
 
     placeholderIdx = []
@@ -107,7 +107,7 @@ def __get_placeholder(slide, placeholderNum):
     for shape in slide.placeholders:
         placeholderIdx.append(shape.placeholder_format.idx)
 
-    placeholder = slide.placeholders[placeholderIdx[placeholderNum]]
+    placeholder = slide.placeholders[placeholderIdx[placeholderNum-1]]
 
     # Remove empty placeholder
     sp = placeholder._sp
