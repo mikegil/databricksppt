@@ -52,8 +52,8 @@ def main(inputfile, inputfile2, outputfile, template, layout, title, chart_title
 
     chartInfo = dict(
         data=df,
-        column_names_as_labels=column_names_as_labels,
-        first_column_as_labels=first_column_as_labels,
+        # column_names_as_labels=column_names_as_labels,
+        # first_column_as_labels=first_column_as_labels,
         chart_type=chart_type,
         title=chart_title,
         transpose=transpose

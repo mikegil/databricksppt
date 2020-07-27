@@ -133,26 +133,22 @@ def __get_chart(slide, chartNum):
 
 
 def __infer_category_labels(data):
-    labelsInFirstCol = False
-
     for dataframe in data:
         firstCol = dataframe.iloc[:, 0]
         for cell in firstCol:
             if not isinstance(cell, numbers.Number):
-                labelsInFirstCol = True
+                return True
 
-    return labelsInFirstCol
+    return False
 
 
 def __infer_series_labels(data):
-    labelsInColumnHeaders = False
-
     for dataframe in data:
         for col in dataframe.columns:
             if not isinstance(col, numbers.Number):
-                labelsInColumnHeaders = True
+                return True
 
-    return labelsInColumnHeaders
+    return False
 
 
 def __transpose_data(chartInfo):
