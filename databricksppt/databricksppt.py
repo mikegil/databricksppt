@@ -10,7 +10,8 @@ from pptx.enum.shapes import PP_PLACEHOLDER
 from itertools import islice
 import pandas as pd
 import numpy as np
-
+import io
+import base64
 
 class CHART_TYPE(Enum):
     AREA = 'Area'
@@ -66,6 +67,17 @@ def toPPT(slideInfo, chartInfo):
 
     return pres
 
+def toBase64URL(pres):
+    # Create string shell to insert the base64-encoded data
+    output_str = "<a href='data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,{}'>Download here</a>"
+    # Create a new byte stream to save to
+    stream = io.BytesIO()
+    # Save the presentation content to the byte stream
+    pres.save(stream)
+    # Base64 encode the stream and convert to base64 ascii
+    encoded = base64.b64encode(stream.getvalue()).decode()
+
+    return output_str.format(encoded)
 
 def __create_presentation(slideInfo):
     template = slideInfo.get('template')
