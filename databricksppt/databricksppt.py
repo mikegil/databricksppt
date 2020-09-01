@@ -10,6 +10,7 @@ from pptx import Presentation
 from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
 from pptx.chart.data import CategoryChartData, XyChartData, BubbleChartData
 from pptx.enum.shapes import PP_PLACEHOLDER
+from pptx.util import Pt
 from itertools import islice
 import pandas as pd
 import numpy as np
@@ -62,7 +63,16 @@ def toPPT(presentation):
         return 'Could\'t create PPT'
 
     slide_count = 0
+    body_font = presentation.get('body_font')
+    if body_font is None:
+        body_font = dict(
+            name='Verdana',
+            size=10
+        )
     for slide in presentation.get('slides'):
+        if (slide.get('body_font') is None):
+            slide['body_font'] = body_font
+        slide_body_font = slide.get('body_font')
         slide_count += 1
         new_slide = __create_slide(ppt, slide)
         if new_slide is None or isinstance(new_slide, str):
@@ -70,6 +80,8 @@ def toPPT(presentation):
 
         chart_count = 0
         for chart in slide.get('charts'):
+            if (chart.get('body_font') is None):
+                chart['body_font'] = body_font
             chart_count += 1
             placeholder_num = chart.get('placeholder_num')
             if placeholder_num is not None and placeholder_num > 0:
@@ -462,7 +474,11 @@ def __insert_chart(chart_type, slide, placeholder, chart):
     new_chart = slide.shapes.add_chart(chart_type, placeholder.left,
                                        placeholder.top, placeholder.width, placeholder.height, chart_data).chart
 
+    __set_font_object(new_chart.font, chart.get('body_font'))
+
     __set_chart_title(new_chart, chart)
+
+    __set_axis_object(new_chart.value_axis, chart.get('y_axis'))
 
     __set_chart_legend(new_chart, chart)
 
@@ -499,6 +515,31 @@ def __set_chart_legend(new_chart, chart):
             new_chart.legend.include_in_layout = False
 
 
+def __set_font_object(font_object, font):
+    font_object.name = font['name']
+    font_object.size = Pt(font['size'])
+
+
+def __set_axis_object(axis_object, axis):
+    if axis is None:
+        axis = dict()
+
+    axis_object.visible = axis.get('visible', True) == True
+    axis_object.minimum_scale = axis.get('minimum_scale')
+    axis_object.maximum_scale = axis.get('maximum_scale')
+    has_major_gridlines = axis.get('has_major_grid_lines', False)
+    axis_object.has_major_gridlines = has_major_gridlines
+    has_minor_gridlines = axis.get('has_minor_grid_lines', False)
+    axis_object.has_minor_gridlines = has_minor_gridlines
+    has_title = axis.get('title', False) != False
+    if has_title:
+        axis_object.has_title = True
+        axis_object.axis_title = axis.get('title')
+
+    axis_object.tick_labels.number_format = axis.get(
+        'number_format', '$#0.0,,"M";[Red]($#0.0,,"M")')
+
+
 def __insert_xyzchart(chart_type, slide, placeholder, chart):
     chart_data = __create_xyzdata(chart['data'])
     if chart_data is None:
@@ -508,7 +549,13 @@ def __insert_xyzchart(chart_type, slide, placeholder, chart):
     new_chart = slide.shapes.add_chart(chart_type, placeholder.left,
                                        placeholder.top, placeholder.width, placeholder.height, chart_data).chart
 
+    __set_font_object(new_chart.font, chart.get('body_font'))
+
     __set_chart_title(new_chart, chart)
+
+    __set_axis_object(new_chart.value_axis, chart.get('x_axis'))
+
+    __set_axis_object(new_chart.value_axis, chart.get('y_axis'))
 
     __set_chart_legend(new_chart, chart)
 

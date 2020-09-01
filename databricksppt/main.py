@@ -47,6 +47,11 @@ def main(inputfile, inputfile2, outputfile, template, layout_num, title, chart_t
     column_names_as_labels = None if column_names_as_labels == 'Infer' else True if column_names_as_labels == 'True' else False
     first_column_as_labels = None if first_column_as_labels == 'Infer' else True if first_column_as_labels == 'True' else False
 
+    body_font = dict(
+        name='Verdana',
+        size=10
+    )
+
     chart = dict(
         title=chart_title,
         placeholder_num=placeholder_num,
@@ -69,6 +74,7 @@ def main(inputfile, inputfile2, outputfile, template, layout_num, title, chart_t
 
     presentation = dict(
         template=template,
+        #      body_font=body_font,
         slides=[slide]
     )
 
